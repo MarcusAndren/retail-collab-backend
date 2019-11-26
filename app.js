@@ -4,19 +4,47 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const port = 3003;
 
-const servicePoints = [{ name: 'Järna', }];
-let parcels = [];
+const servicePoints = [{
+    id: '1',
+    name: 'Järna',
+    parcels: [],
+}];
 
 app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
-app.get('/rest/parcels', (req, res) => {
-    res.send(parcels);
+app.get('/rest/service-points/:servicePointId', (req, res) => {
+    const servicePoint = getServicePoint(req.params.id);
+
+    if(!servicePoint) {
+        res.send().status(400);
+        return;
+    }
+
+    res.send(servicePoint);
 });
 
-app.post('/rest/parcels', (req, res) => {
+app.get('/rest/service-points/:servicePointId/parcels', (req, res) => {
+    const servicePoint = getServicePoint(req.params.id);
+
+    if(!servicePoint) {
+        res.send().status(400);
+        return;
+    }
+
+    res.send(servicePoint.parcels);
+});
+
+app.post('/rest/service-points/:servicePointId/parcels', (req, res) => {
+    const servicePoint = getServicePoint(req.params.id);
+
+    if(!servicePoint) {
+        res.send().status(400);
+        return;
+    }
+
     const itemId = req.body.itemId;
     const shelfNumber = req.body.shelfNumber;
 
@@ -25,25 +53,36 @@ app.post('/rest/parcels', (req, res) => {
         return;
     }
 
-    if(parcels.findIndex((parcel) => parcel.itemId === itemId) >= 0) {
+    if(servicePoint.parcels.findIndex((parcel) => parcel.itemId === itemId) >= 0) {
         res.send('Item already exists').status(403);
         return;
     }
 
-    parcels.push(
+    servicePoint.parcels.push(
         {
             itemId,
             shelfNumber,
             recipientName: req.body.recipientName || '',
             recipientAddress: req.body.recipientAddress || '',
+            recipientAddress2: req.body.recipientAddress2 || '',
+            recipientPostalCode: req.body.recipientPostalCode || '',
+            recipientCity: req.body.recipientCity || '',
+            recipientCountry: req.body.recipientCountry || '',
             senderName: req.body.senderName || '',
         }
     );
 
-    res.send(parcels).status(201);
+    res.send(servicePoint.parcels).status(201);
 });
 
-app.delete('/rest/parcels/:id', (req, res) => {
+app.delete('/rest/service-points/:servicePointId/parcels/:parcelId', (req, res) => {
+    const servicePoint = getServicePoint(req.params.id);
+
+    if(!servicePoint) {
+        res.send().status(400);
+        return;
+    }
+
     const itemId = req.params.id;
 
     if(!itemId) {
@@ -51,24 +90,19 @@ app.delete('/rest/parcels/:id', (req, res) => {
         return;
     }
 
-    const index = parcels.findIndex((parcel) => parcel.itemId === itemId)
+    const index = servicePoint.parcels.findIndex((parcel) => parcel.itemId === itemId)
 
     if(index >= 0) {
-        parcels.splice(index, 1);
+        servicePoint.parcels.splice(index, 1);
     }
 
-    res.send(parcels);
-});
-
-app.get('/rest/service-points/:id', (req, res) => {
-    const servicePointId = req.params.id;
-
-    if(servicePointId === -1) {
-        res.send().status(400);
-        return;
-    }
-
-    res.send(servicePoints[servicePointId-1]);
+    res.send(servicePoint.parcels);
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+const getServicePoint = (id) => {
+    var index = servicePoints.findIndex((servicePoint) => servicePoint.id === id);
+
+    return index >= 0 ? servicePoints[index] : null;
+}
