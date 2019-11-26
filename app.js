@@ -16,7 +16,7 @@ app.use(cors());
 app.get('/', (req, res) => res.send('Hello World!'));
 
 app.get('/rest/service-points/:servicePointId', (req, res) => {
-    const servicePoint = getServicePoint(req.params.id);
+    const servicePoint = getServicePoint(req.params.servicePointId);
 
     if(!servicePoint) {
         res.send().status(400);
@@ -27,7 +27,7 @@ app.get('/rest/service-points/:servicePointId', (req, res) => {
 });
 
 app.get('/rest/service-points/:servicePointId/parcels', (req, res) => {
-    const servicePoint = getServicePoint(req.params.id);
+    const servicePoint = getServicePoint(req.params.servicePointId);
 
     if(!servicePoint) {
         res.send().status(400);
@@ -38,7 +38,8 @@ app.get('/rest/service-points/:servicePointId/parcels', (req, res) => {
 });
 
 app.post('/rest/service-points/:servicePointId/parcels', (req, res) => {
-    const servicePoint = getServicePoint(req.params.id);
+    const servicePoint = getServicePoint(req.params.servicePointId);
+    console.log(servicePoint);
 
     if(!servicePoint) {
         res.send().status(400);
@@ -76,14 +77,14 @@ app.post('/rest/service-points/:servicePointId/parcels', (req, res) => {
 });
 
 app.delete('/rest/service-points/:servicePointId/parcels/:parcelId', (req, res) => {
-    const servicePoint = getServicePoint(req.params.id);
+    const servicePoint = getServicePoint(req.params.servicePointId);
 
     if(!servicePoint) {
         res.send().status(400);
         return;
     }
 
-    const itemId = req.params.id;
+    const itemId = req.params.parcelId;
 
     if(!itemId) {
         res.send('Missing item id').status(400);
@@ -102,6 +103,8 @@ app.delete('/rest/service-points/:servicePointId/parcels/:parcelId', (req, res) 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
 const getServicePoint = (id) => {
+    console.log(id);
+    console.log(servicePoints);
     var index = servicePoints.findIndex((servicePoint) => servicePoint.id === id);
 
     return index >= 0 ? servicePoints[index] : null;
