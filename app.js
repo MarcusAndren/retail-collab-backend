@@ -36,6 +36,10 @@ app.post('/rest/parcels', (req, res) => {
             shelfNumber,
             recipientName: req.body.recipientName || '',
             recipientAddress: req.body.recipientAddress || '',
+            recipientAddress2: req.body.recipientAddress2 || '',
+            recipientPostalCode: req.body.recipientPostalCode || '',
+            recipientCity: req.body.recipientCity || '',
+            recipientCountry: req.body.recipientCountry || '',
             senderName: req.body.senderName || '',
         }
     );
